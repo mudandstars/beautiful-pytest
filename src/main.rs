@@ -1,7 +1,7 @@
 use std::process::{Command, Stdio, Child};
 use ansi_term::Color::{Green, Red, Black};
 use ansi_term::Style;
-use std::io::{BufRead, BufReader, Error};
+use std::io::{BufRead, BufReader};
 use std::env;
 
 mod pytest;
@@ -18,17 +18,27 @@ fn execute_pytest() {
     let reader = BufReader::new(stdout);
     let mut current_file = "".to_string();
 
+    let mut passed_tests_count: u32 = 0;
+    let mut failed_tests_count: u32 = 0;
+
     for (index, line) in reader.lines().enumerate() {
         match line {
             Ok(line) => {
-                handle_line(line, &mut current_file);
+                handle_line(line, &mut current_file, &mut passed_tests_count, &mut failed_tests_count);
             },
             Err(e) => eprintln!("Error reading line: {}", e),
         }
     }
+
+    println!(" {}\t {}{} {}",
+        Black.dimmed().paint("Tests"),
+        Red.bold().paint(failed_tests_count.to_string() + " failed"),
+        Black.dimmed().paint(","),
+        Green.bold().paint(passed_tests_count.to_string() + " passed")
+    );
 }
 
-fn handle_line(line: String, current_file: &mut String) {
+fn handle_line(line: String, current_file: &mut String, passed_tests_count: &mut u32, failed_tests_count: &mut u32) {
     if line.to_lowercase().contains("python") && line.to_lowercase().contains("pytest") {
         println!("{}", Green.dimmed().paint(&line));
     }
@@ -44,9 +54,11 @@ fn handle_line(line: String, current_file: &mut String) {
         let test_name = pytest::extract_test_name(&line).replace("test_", "").replace("_", " ");
         if pytest::test_passed(&line) {
             let check_mark = '\u{2714}';
+            *passed_tests_count += 1;
             println!(" {} {}", Green.paint(check_mark.to_string()), test_name);
         } else {
             let x_mark = '\u{2718}';
+            *failed_tests_count += 1;
             println!(" {} {}", Red.paint(x_mark.to_string()), test_name);
         }
     }
