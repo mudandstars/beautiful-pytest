@@ -1,8 +1,9 @@
 use ansi_term::Color::{Red, Black};
 use ansi_term::Style;
 
-const FAILED_TEST_HEAD_LINE_SEPARATOR: &str = "________________________________";
-const FAILED_TEST_SECTION_LINE_SEPARATOR: &str = "===================================";
+pub const FAILED_TEST_HEAD_LINE_SEPARATOR: &str = "_______________________________";
+const FAILED_TEST_HEAD_LINE_SEPARATOR_START: &str = "_______________________________ ";
+const FAILED_TEST_SECTION_LINE_SEPARATOR: &str = "==================================";
 
 pub struct File {
     name: String,
@@ -23,7 +24,7 @@ impl File {
 }
 
 pub struct Test {
-    name: String,
+    pub name: String,
     pub error_type: Option<String>,
     pub short_error_description: Option<String>,
     pub full_error: Option<String>,
@@ -42,9 +43,8 @@ impl Test {
     pub fn print_error(&self, file_name: String) {
         if self.error_type.is_some() && self.short_error_description.is_some() && self.full_error.is_some() {
             println!("");
-            println!("{}\t{}::{}\t\t\t\t{}", Style::new().on(Red).fg(Black).bold().paint(" FAILED "), file_name, self.name, Style::new().on(Red).fg(Black).bold().paint(String::from(" ") + self.error_type.as_ref().unwrap() + " "));
+            println!("{} {}::{}\t\t\t\t{}", Style::new().on(Red).fg(Black).bold().paint(" FAILED "), file_name, self.name, Style::new().on(Red).fg(Black).bold().paint(String::from(" ") + self.error_type.as_ref().unwrap() + " "));
             println!(" {}", Red.paint(self.short_error_description.as_ref().unwrap()));
-            println!("");
             println!(" {}", self.full_error.as_ref().unwrap());
             println!("");
         }
@@ -53,6 +53,21 @@ impl Test {
 
 pub fn line_contains_test(line: &str) -> bool {
     return line.contains(".py::") && (line.contains(" PASSED") || line.contains(" FAILED"));
+}
+
+pub fn is_error_header_for_test(line: &str) -> Option<String> {
+    if line.contains(FAILED_TEST_HEAD_LINE_SEPARATOR) {
+        let end_index = line.rfind(&(String::from(" ") + FAILED_TEST_HEAD_LINE_SEPARATOR)).unwrap();
+        let start = line.find(FAILED_TEST_HEAD_LINE_SEPARATOR_START).unwrap();
+        let start_index = start + FAILED_TEST_HEAD_LINE_SEPARATOR_START.len();
+
+        let test_name = &line[start_index..end_index];
+        let cleaned = test_name.replace("test_", "").replace("_", " ");
+
+        Some(cleaned)
+    } else {
+        None
+    }
 }
 
 pub fn test_passed(line: &str) -> bool {
@@ -70,7 +85,7 @@ pub fn extract_test_name(line: &str) -> String {
     }
 
     let start_idx = start + ".py::".len();
-    return line[start_idx..end].to_string();
+    return line[start_idx..end].to_string().replace("test_", "").replace("_", " ");
 }
 
 pub fn extract_file_name(line: &str) -> String {
