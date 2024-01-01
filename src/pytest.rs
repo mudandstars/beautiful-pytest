@@ -25,6 +25,7 @@ impl File {
 
 pub struct Test {
     pub name: String,
+    pub error_line_number: Option<u32>,
     pub error_type: Option<String>,
     pub short_error_description: Option<String>,
     pub full_error: Option<String>,
@@ -34,6 +35,7 @@ impl Test {
     pub fn new(name: String) -> Test {
         Test {
             name,
+            error_line_number: None,
             error_type: None,
             short_error_description: None,
             full_error: None,
@@ -41,10 +43,10 @@ impl Test {
     }
 
     pub fn print_error(&self, file_name: String) {
-        if self.error_type.is_some() && self.short_error_description.is_some() && self.full_error.is_some() {
+        if self.error_type.is_some() && self.error_line_number.is_some() && self.short_error_description.is_some() && self.full_error.is_some() {
             println!("");
             println!("{} {}::{}\t\t\t\t{}", Style::new().on(Red).fg(Black).bold().paint(" FAILED "), file_name, self.name, Style::new().on(Red).fg(Black).bold().paint(String::from(" ") + self.error_type.as_ref().unwrap() + " "));
-            println!(" {}", Red.paint(self.short_error_description.as_ref().unwrap()));
+            println!(" {} {}", Red.bold().underline().paint(String::from("Line ") + &self.error_line_number.unwrap().to_string() + ":"), Red.paint(self.short_error_description.as_ref().unwrap()));
             println!(" {}", self.full_error.as_ref().unwrap());
             println!("");
         }

@@ -47,12 +47,14 @@ pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_r
                     if test.name == *test_name_of_error_being_read.as_ref().unwrap() {
                         if line.contains(".py:") {
                             test.error_type = Some(line.split(" ").last().unwrap().to_string());
+
+                            test.error_line_number = Some(line.split(".py:").last().unwrap().split(":").next().unwrap().parse::<u32>().expect("Failed to read error line number"));
                         } else {
                             let existing_error = if test.full_error.clone().is_some() { test.full_error.clone().unwrap()} else {String::new()};
 
                             test.full_error = Some(existing_error + "\n " + line);
 
-                            test.short_error_description = Some(line.to_string());
+                            test.short_error_description = Some(line.split("E      ").last().unwrap().to_string());
                         }
                     }
                 }
