@@ -1,0 +1,8 @@
+setup.py
+beautiful_pytest/__init__.py
+beautiful_pytest/wrapper.py
+beautiful_pytest.egg-info/PKG-INFO
+beautiful_pytest.egg-info/SOURCES.txt
+beautiful_pytest.egg-info/dependency_links.txt
+beautiful_pytest.egg-info/entry_points.txt
+beautiful_pytest.egg-info/top_level.txt

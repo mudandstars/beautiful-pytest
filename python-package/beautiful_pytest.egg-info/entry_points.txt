@@ -1,0 +1,2 @@
+[console_scripts]
+beautiful_pytest = beautiful_pytest.wrapper:main
