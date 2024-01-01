@@ -11,7 +11,6 @@ pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_r
     }
 
     if line_contains_test(&line) {
-        // if let Some(file) = files.last() {
         if files.last().is_none() || files.last().unwrap().get_name() != extract_file_name(&line) {
             files.push(File::new(extract_file_name(line)));
 
@@ -61,5 +60,5 @@ pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_r
         }
     }
 
-    // println!("Pytest output: {}", line);
+    println!("Pytest output: {}", line);
 }
