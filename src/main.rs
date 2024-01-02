@@ -36,7 +36,7 @@ fn run_pytest() -> Child {
 
     if args.len() < 2 && ! config_file_exists {
         pytest_command.arg(".");
-    } else {
+    } else if args.len() > 2 {
         let filter = &args[1];
         pytest_command.arg(format!("-k {}", filter));
     }
