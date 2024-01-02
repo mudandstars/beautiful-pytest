@@ -62,5 +62,5 @@ pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_r
         }
     }
 
-    println!("Pytest output: {}", line);
+    // println!("Pytest output: {}", line);
 }
