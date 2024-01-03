@@ -34,9 +34,9 @@ fn run_pytest() -> Child {
 
     let config_file_exists = Path::new("./pytest.ini").exists() || Path::new("./.pytest.ini").exists();
 
-    if args.len() < 2 && ! config_file_exists {
+    if args.len() < 1 && ! config_file_exists {
         pytest_command.arg(".");
-    } else if args.len() > 2 {
+    } else if args.len() > 1 {
         let filter = &args[1];
         pytest_command.arg(format!("-k {}", filter));
     }
