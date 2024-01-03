@@ -1,6 +1,7 @@
 use std::process::{Command, Stdio, Child};
 use std::io::{BufRead, BufReader};
 use std::env;
+use std::path::Path;
 
 mod pytest;
 mod print_testing_results;
@@ -30,9 +31,12 @@ fn main() {
 fn run_pytest() -> Child {
     let mut pytest_command = Command::new("pytest");
     let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
+
+    let config_file_exists = Path::new("./pytest.ini").exists() || Path::new("./.pytest.ini").exists();
+
+    if args.len() < 2 && ! config_file_exists {
         pytest_command.arg(".");
-    } else {
+    } else if args.len() > 2 {
         let filter = &args[1];
         pytest_command.arg(format!("-k {}", filter));
     }
