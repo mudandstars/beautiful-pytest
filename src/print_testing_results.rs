@@ -8,24 +8,24 @@ pub fn print_testing_results(files: Vec<File>) {
 
     for file in files.iter() {
         for test in file.tests.iter() {
-            if test.error_type.is_none() {
-                passed_tests_count +=1;
-            } else {
-                test.print_error(String::from(file.get_name()));
+            if test.failed {
                 failed_tests_count +=1;
+                test.print_error(String::from(&file.name));
+            } else {
+                passed_tests_count +=1;
             }
         }
     }
 
     if failed_tests_count > 0 {
-        println!(" {}\t {}{} {}",
+        println!("\n {}\t {}{} {}",
             Black.dimmed().paint("Tests"),
             Red.bold().paint(String::from(" ") + &failed_tests_count.to_string() + " failed"),
             Black.dimmed().paint(","),
             Green.bold().paint(passed_tests_count.to_string() + " passed")
         );
     } else {
-        println!(" {}\t {}",
+        println!("\n {}\t {}",
             Black.dimmed().paint("Tests"),
             Green.bold().paint(passed_tests_count.to_string() + " passed")
         );

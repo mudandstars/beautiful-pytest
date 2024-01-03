@@ -16,10 +16,11 @@ fn main() {
     let mut files: Vec<pytest::File> = vec![];
 
     let mut test_name_of_error_being_read: Option<String> = None;
+    let mut file_name_of_test_being_read: Option<String> = None;
 
     for line in reader.lines() {
         match line {
-            Ok(line) => handle_line::handle_line(&line, &mut files, &mut test_name_of_error_being_read),
+            Ok(line) => handle_line::handle_line(&line, &mut files, &mut test_name_of_error_being_read, &mut file_name_of_test_being_read),
             Err(e) => eprintln!("Error reading line: {}", e),
         }
     }

@@ -1,42 +1,38 @@
-use ansi_term::Color::{Green, Red, Black};
+use ansi_term::Color::{Green, Black};
 use ansi_term::Style;
 
 
 use crate::pytest::*;
 
 
-pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_read: &mut Option<String>) {
+pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_read: &mut Option<String>, file_name_of_test_being_read: &mut Option<String>) {
+    let file_name = extract_file_name(&line);
+
     if line.to_lowercase().contains("python") && line.to_lowercase().contains("pytest") {
         println!("{}", Green.dimmed().paint(line));
     }
 
+    if file_name_of_test_being_read.is_some() && *file_name_of_test_being_read.as_ref().unwrap() != file_name {
+        files.last_mut().unwrap().print_tests_results();
+        *file_name_of_test_being_read = None;
+    }
+
     if line_contains_test(&line) {
-        if files.last().is_none() || files.last().unwrap().get_name() != extract_file_name(&line) {
-            files.push(File::new(extract_file_name(line)));
-
-            println!("");
-            println!("{} {}", Style::new().on(Green).fg(Black).bold().paint(" TESTING "), files.last().unwrap().get_name());
-        }
-
         let test_name = extract_test_name(&line);
-        files.last_mut().unwrap().tests.push(Test::new(test_name.clone()));
+
+        if files.last().is_none() || files.last().unwrap().name != String::from(&file_name) {
+            files.push(File::new(String::from(&file_name)));
+            *file_name_of_test_being_read = Some(String::from(&file_name));
+        }
 
         if test_passed(&line) {
-            let check_mark = '\u{2714}';
-            println!(" {} {}", Green.paint(check_mark.to_string()), test_name);
+            files.last_mut().unwrap().tests.push(Test::new(String::from(&test_name), false));
         } else {
-            let x_mark = '\u{2718}';
-            files.last_mut().unwrap().tests.last_mut().unwrap().error_type = Some(String::from("something"));
-
-            println!(" {} {}", Red.paint(x_mark.to_string()), test_name);
+            files.last_mut().unwrap().tests.push(Test::new(String::from(&test_name), true));
         }
     }
 
-    // set current file being read
-    let test_name_of_the_error = is_error_header_for_test(line);
-    if test_name_of_the_error.is_some() {
-        *test_name_of_error_being_read = Some(test_name_of_the_error.unwrap().to_string());
-    }
+    set_test_name_of_error_being_read(line, test_name_of_error_being_read);
 
     if test_name_of_error_being_read.is_some() {
         if line.contains("short test summary info") {
@@ -61,6 +57,12 @@ pub fn handle_line(line: &str, files: &mut Vec<File>, test_name_of_error_being_r
             }
         }
     }
+}
 
-    // println!("Pytest output: {}", line);
+fn set_test_name_of_error_being_read(line: &str, test_name_of_error_being_read: &mut Option<String>) {
+    let test_name_of_the_error = is_error_header_for_test(line);
+
+    if test_name_of_the_error.is_some() {
+        *test_name_of_error_being_read = Some(test_name_of_the_error.unwrap().to_string());
+    }
 }
