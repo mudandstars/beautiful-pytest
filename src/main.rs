@@ -37,7 +37,6 @@ fn run_pytest() -> Child {
         pytest_command.arg(format!("-k {}", filter));
     }
     pytest_command.arg("-v");
-    // dbg!(args);
     pytest_command.stdout(Stdio::piped());
 
     return pytest_command.spawn().expect("Failed to start pytest");

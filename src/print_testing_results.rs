@@ -17,10 +17,17 @@ pub fn print_testing_results(files: Vec<File>) {
         }
     }
 
-    println!(" {}\t {}{} {}",
-        Black.dimmed().paint("Tests"),
-        Red.bold().paint(failed_tests_count.to_string() + " failed"),
-        Black.dimmed().paint(","),
-        Green.bold().paint(passed_tests_count.to_string() + " passed")
-    );
+    if failed_tests_count > 0 {
+        println!(" {}\t {}{} {}",
+            Black.dimmed().paint("Tests"),
+            Red.bold().paint(String::from(" ") + &failed_tests_count.to_string() + " failed"),
+            Black.dimmed().paint(","),
+            Green.bold().paint(passed_tests_count.to_string() + " passed")
+        );
+    } else {
+        println!(" {}\t {}",
+            Black.dimmed().paint("Tests"),
+            Green.bold().paint(passed_tests_count.to_string() + " passed")
+        );
+    }
 }
